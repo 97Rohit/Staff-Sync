@@ -1,15 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-import os
 
 from database import init_db
 from routes import employees, attendance, dashboard
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database on startup"""
+    # Initialize database on startup
     init_db()
     yield
 
@@ -21,56 +23,29 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration - allow frontend to connect
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-    # Add production frontend URL here
-]
-
-# For development, allow all origins
-# In production, replace with specific frontend URL
+# CORS (allow frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure this for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers
+# Include backend routes
 app.include_router(employees.router)
 app.include_router(attendance.router)
 app.include_router(dashboard.router)
 
-
-@app.get("/")
-def root():
-    """Root endpoint"""
-    return {
-        "message": "Welcome to HRMS Lite API",
-        "docs": "/docs",
-        "version": "1.0.0"
-    }
-
-
-@app.get("/health")
-def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy"}
-<<<<<<< HEAD
-
-
-
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
+# Serve frontend static files (Vite build)
 app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
 
+# Serve frontend (main page)
 @app.get("/")
 def serve_frontend():
     return FileResponse("dist/index.html")
-=======
->>>>>>> d1c215699736c76ac7a0a3a0f94abc608d63d169
+
+# Health check
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
