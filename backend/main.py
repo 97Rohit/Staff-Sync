@@ -60,6 +60,7 @@ def root():
 def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+<<<<<<< HEAD
 
 
 
@@ -71,3 +72,5 @@ app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
 @app.get("/")
 def serve_frontend():
     return FileResponse("dist/index.html")
+=======
+>>>>>>> d1c215699736c76ac7a0a3a0f94abc608d63d169
